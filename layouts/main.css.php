@@ -980,6 +980,7 @@ tbody.gle tr:hover {
 }
 
 .rTable {
+		display: block;
   	width: 100%;
 		margin-left: 20;
 }
@@ -993,10 +994,12 @@ tbody.gle tr:hover {
 .rTableCell, .rTableHead {
   	border: 1px solid #999999;
   	float: left;
-  	height: 17px;
+  	height: 32px;
   	overflow: hidden;
   	padding: 3px 1.8%;
-  	width: 28%;
+#  	width: 50%;
+		max-width:150px;
+		text-align: left;
 }
 .rTable:after {
   	 visibility: hidden;
@@ -1006,3 +1009,19 @@ tbody.gle tr:hover {
   	 clear: both;
   	 height: 0;
 }
+
+.large-10 {width:8%; max-width:90px;}
+
+.large-20 {width:20%; max-width:180px;}
+
+.large-40 {width:55%; max-width:400px;}
+
+.large-45 {width:45%; max-width:405px;}
+
+.large-60 {width:60%; max-width:560px;}
+
+.large-70 {width:70%; max-width:630px;}
+
+.large-80 {width:80%; max-width:720px;}
+
+.large-100 {width:100%; max-width:890px;}

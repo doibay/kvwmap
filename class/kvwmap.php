@@ -6565,17 +6565,17 @@ SET @connection = 'host={$this->pgdatabase->host} user={$this->pgdatabase->user}
     $attrib['order'] = 1;
     return $mapDB->new_Class($attrib);
   }
-
+	
   function LayerAnlegen(){
 		global $supportedLanguages;
-		$mapDB = new db_mapObj($this->Stelle->id,$this->user->id);
-		if (trim($this->formvars['id'])!='' and $mapDB->id_exists('layer',$this->formvars['id'])) {
-			$table_information = $mapDB->get_table_information($this->Stelle->database->dbName,'layer');
+    $mapDB = new db_mapObj($this->Stelle->id,$this->user->id);
+	  if (trim($this->formvars['id'])!='' and $mapDB->id_exists('layer',$this->formvars['id'])) {
+		  $table_information = $mapDB->get_table_information($this->Stelle->database->dbName,'layer');
 			$this->Meldung = "Die Id: ".$this->formvars['id']." existiert schon. Nächste freie Layer_ID ist ".$table_information['AUTO_INCREMENT'];
 		}
 		else {
 			$this->formvars['selected_layer_id'] = $mapDB->newLayer($this->formvars);
-
+			
 			if($this->formvars['connectiontype'] == 6 AND $this->formvars['pfad'] != ''){
 				#---------- Speichern der Layerattribute -------------------
 				$layerdb = $mapDB->getlayerdatabase($this->formvars['selected_layer_id'], $this->Stelle->pgdbhost);
@@ -6585,11 +6585,11 @@ SET @connection = 'host={$this->pgdatabase->host} user={$this->pgdatabase->user}
 				$mapDB->delete_old_attributes($this->formvars['selected_layer_id'], $attributes);
 				#---------- Speichern der Layerattribute -------------------
 			}
-
+			
 			# Klassen übernehmen (aber als neue Klassen anlegen)
 			$name = @array_values($this->formvars['name']);
 			foreach($supportedLanguages as $language){
-				if($language != 'german'){
+				if($language != 'german'){	
 					$name_[$language] = @array_values($this->formvars['name_'.$language]);
 				}
 			}
@@ -6714,22 +6714,14 @@ SET @connection = 'host={$this->pgdatabase->host} user={$this->pgdatabase->user}
 
   /*
   * Weist Layer Stellen zu
-  * @param array Array von layer_ids, die den Stellen zugewiesen werden sollen.
-  * @param array Array von Stellen, denen die Layer zugewiesen werden sollen.
-	* @param string (optional) Text der in used_layer im Attribut Filter verwendet werden soll.
+  * @params array Array von layer_ids, die den Stellen zugewiesen werden sollen.
+  * @params array Array von Stellen, denen die Layer zugewiesen werden sollen.
   * @return void
   */
-  function Stellenzuweisung($layer_ids, $stellen_ids, $filter = '') {
+  function Stellenzuweisung($layer_ids, $stellen_ids) {
     for($i = 0; $i < count($stellen_ids); $i++) {
-      $stelle = new stelle(
-				$stellen_ids[$i],
-				$this->database
-			);
-      $stelle->addLayer(
-				$layer_ids,
-				0,
-				$filter
-			);
+      $stelle = new stelle($stellen_ids[$i], $this->database);
+      $stelle->addLayer($layer_ids, 0);
       $users = $stelle->getUser();
       for($j = 0; $j < count($users['ID']); $j++){
         $this->user->rolle->setGroups($users['ID'][$j], array($stellen_ids[$i]), $layer_ids, 0); # Hinzufügen der Layergruppen der selektierten Layer zur Rolle
@@ -7012,7 +7004,7 @@ SET @connection = 'host={$this->pgdatabase->host} user={$this->pgdatabase->user}
         }
 	
 				$layerset[0]['sql'] = $sql;
-				#echo "<p>Abfragestatement: ".$sql.$sql_order.$sql_limit;
+				#echo "Abfragestatement: ".$sql.$sql_order.$sql_limit;
         $ret=$layerdb->execSQL('SET enable_seqscan=off;'.$sql.$sql_order.$sql_limit,4, 0);
         if(!$ret[0]){
           while ($rs=pg_fetch_assoc($ret[1])) {
@@ -7523,19 +7515,16 @@ SET @connection = 'host={$this->pgdatabase->host} user={$this->pgdatabase->user}
 				}
 
 				if (!empty($layer['trigger_function'])) {
-					# Rufe Instead Delete trigger auf
-					#echo '<br>Rufe Instead Delete trigger auf.';
+					# Rufe Instead Delte trigger auf
 					$trigger_result = $this->exec_trigger_function('INSTEAD', 'DELETE', $layer, $element[3]);
 				}
 
 				if ($trigger_result['executed']) {
-					#echo '<br>Delete Trigger Funktion wurde ausgeführt.';
 					# Instead Triggerfunktion wurde ausgeführt, übergebe Erfolgsmeldung
-					$result = array($trigger_result['message']);
 					$success = $trigger_result['success'];
+					$result = array($trigger_result['message']);
 				}
 				else {
-					echo '<br>Delete Trigger Funktion wurde nicht ausgeführt.';
 					# Instead Triggerfuktion wurde nicht ausgeführt
 					# Delete the object regularly in database
 					$sql = "DELETE FROM ".$element[2]." WHERE oid = ".$element[3];
@@ -7569,7 +7558,6 @@ SET @connection = 'host={$this->pgdatabase->host} user={$this->pgdatabase->user}
 				}
 			}
 		}
-
 		if ($output) {
 			if($this->formvars['embedded'] == ''){
 				if($success == false){
@@ -7652,12 +7640,8 @@ SET @connection = 'host={$this->pgdatabase->host} user={$this->pgdatabase->user}
 				}
 			}
 		}
-
-		if ($this->formvars['geomtype'] == 'GEOMETRY') {
-			$this->formvars['geomtype'] = array('POINT', 'LINESTRING', 'POLYGON')[$this->formvars['Datentyp']];
-		}
-
-		if($this->formvars['geomtype'] == 'POLYGON' OR $this->formvars['geomtype'] == 'MULTIPOLYGON') {
+    
+    if($this->formvars['geomtype'] == 'POLYGON' OR $this->formvars['geomtype'] == 'MULTIPOLYGON' OR $this->formvars['geomtype'] == 'GEOMETRY'){
       if($this->formvars['newpathwkt'] == '' AND $this->formvars['newpath'] != ''){   # wenn keine WKT-Geoemtrie da ist, muss die WKT-Geometrie aus dem SVG erzeugt werden
 				include_(CLASSPATH.'spatial_processor.php');
         $spatial_pro = new spatial_processor($this->user->rolle, $this->database, $this->pgdatabase);
@@ -9517,8 +9501,12 @@ SET @connection = 'host={$this->pgdatabase->host} user={$this->pgdatabase->user}
 	function Menueverwaltung() {
 		include(CLASSPATH . 'MyObject.php');
 		$this->main='menueverwaltung.php';
-		$mysql_object = new MyObject($this->database, 'u_menues');
-		$this->menues = $mysql_object->find_where('1=1');
+		$mysql_object = new MyObject($this, 'u_menues');
+		$this->menues = $mysql_object->find_by_sql(array(
+			'select' => '*',
+			'where' => '1=1',
+			'order' => 'name'
+		));
 	}
 
   function Filter_speichern($formvars){
