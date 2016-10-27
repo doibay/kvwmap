@@ -9498,6 +9498,13 @@ SET @connection = 'host={$this->pgdatabase->host} user={$this->pgdatabase->user}
     }
   }
 
+	function Menueverwaltung() {
+		include(CLASSPATH . 'MyObject.php');
+		$this->main='menueverwaltung.php';
+		$mysql_object = new MyObject($this->database, 'u_menues');
+		$this->menues = $mysql_object->find_where('1=1');
+	}
+
   function Filter_speichern($formvars){
     $mapDB = new db_mapObj($this->Stelle->id,$this->user->id);
     if($formvars['selected_layers'] != ''){

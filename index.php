@@ -1317,6 +1317,12 @@ if(FAST_CASE OR $GUI->goNotExecutedInPlugins){
 			$GUI->output();
 	  }break;
 
+	  case 'Menueverwaltung' : {
+			$GUI->checkCaseAllowed('Menueverwaltung');
+			$GUI->Menueverwaltung();
+			$GUI->output();
+	  }break;
+
 		case 'BenutzerStellen_Anzeigen' : {
 			$GUI->BenutzerNachStellenAnzeigen();
 	  } break;
